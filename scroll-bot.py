@@ -16,10 +16,26 @@ from scrollphathd.fonts import font5x7
 
 # Set to your Adafruit IO key & username below.
 ADAFRUIT_IO_KEY = '1168c7db061e42b29aa7f9e32af5ad42'
-ADAFRUIT_IO_USERNAME = 'LimeBlast'  # See https://accounts.adafruit.com
-# to find your username.
+ADAFRUIT_IO_USERNAME = 'LimeBlast'
 
 scrollphathd.rotate(180)
+
+
+def display_string(string):
+    length = len(string)
+    width = 17
+    buffer = (length * 6) + width
+
+    scrollphathd.write_string(string + "      ", x=width, y=0, font=font5x7, brightness=0.5)
+
+    for i in range(buffer):
+        scrollphathd.show()
+        scrollphathd.scroll(1)
+        time.sleep(0.05)
+
+    scrollphathd.clear()
+    scrollphathd.show()
+
 
 # Define callback functions which will be called when certain events happen.
 def connected(client):
@@ -44,15 +60,7 @@ def message(client, feed_id, payload):
     # the new value.
     print('Feed {0} received new value: {1}'.format(feed_id, payload))
 
-    scrollphathd.clear()
-    scrollphathd.write_string(payload, x=0, y=0, font=font5x7, brightness=0.5)
-
-    status_length = len(payload)
-    while status_length > 0:
-        scrollphathd.show()
-        scrollphathd.scroll()
-        time.sleep(0.1)
-        status_length -= 1
+    display_string(payload)
 
 
 # Create an MQTT client instance.
@@ -74,10 +82,10 @@ client.connect()
 # doing things in your program.
 client.loop_background()
 
-# Now send new values every 10 seconds.
-print('Publishing a new message every 10 seconds (press Ctrl-C to quit)...')
+# Now send new values every 40 seconds.
+print('Publishing a new message every 40 seconds (press Ctrl-C to quit)...')
 while True:
     value = random.randint(0, 100)
     print('Publishing {0} to DemoFeed.'.format(value))
     client.publish('DemoFeed', value)
-    time.sleep(10)
+    time.sleep(40)
