@@ -5,6 +5,7 @@
 import random
 import sys
 import time
+import threading
 # import signal
 
 # Import Adafruit IO MQTT client.
@@ -20,6 +21,20 @@ ADAFRUIT_IO_USERNAME = 'LimeBlast'
 
 scrollphathd.rotate(180)
 
+messages = []
+
+
+def add_message(string):
+    messages.append(string)
+
+
+def display_feed():
+    while True:
+        if len(messages) > 0:
+            display_string(messages.pop(0))
+        else:
+            time.sleep(1)
+
 
 def display_string(string):
     string += '      '
@@ -31,6 +46,7 @@ def display_string(string):
         time.sleep(0.05)
 
     scrollphathd.scroll_to(0, 0)
+    scrollphathd.clear()
     scrollphathd.show()
 
 
@@ -56,7 +72,7 @@ def message(client, feed_id, payload):
     # The feed_id parameter identifies the feed, and the payload parameter has
     # the new value.
     print('Feed {0} received new value: {1}'.format(feed_id, payload))
-    display_string(payload)
+    add_message(payload)
 
 
 # Create an MQTT client instance.
@@ -78,10 +94,12 @@ client.connect()
 # doing things in your program.
 client.loop_background()
 
-# Now send new values every 20 seconds.
-print('Publishing a new message every 20 seconds (press Ctrl-C to quit)...')
+threading.Thread(target=display_feed).start()
+
+# Now send new values every 5 seconds.
+print('Publishing a new message every 5 seconds (press Ctrl-C to quit)...')
 while True:
     value = random.randint(0, 100)
     print('Publishing {0} to DemoFeed.'.format(value))
     client.publish('DemoFeed', value)
-    time.sleep(20)
+    time.sleep(5)

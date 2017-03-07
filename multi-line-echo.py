@@ -23,4 +23,5 @@ for line, text in enumerate(lines):
         time.sleep(0.02)
 
     scrollphathd.scroll_to(0, 0)
+    scrollphathd.clear()
     scrollphathd.show()
