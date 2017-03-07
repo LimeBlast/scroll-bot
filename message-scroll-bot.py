@@ -33,6 +33,7 @@ def add_message(string):
 def display_feed():
     while True:
         if len(messages) > 0:
+            print('There are {0} messages waiting for display'.format(len(messages)))
             display_string(messages.pop(0))
         else:
             time.sleep(1)
@@ -45,7 +46,7 @@ def display_string(string):
     for i in range(buffer):
         scrollphathd.show()
         scrollphathd.scroll(1)
-        time.sleep(0.05)
+        time.sleep(0.02)
 
     scrollphathd.scroll_to(0, 0)
     scrollphathd.clear()
