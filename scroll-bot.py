@@ -6,6 +6,7 @@ import random
 import sys
 import time
 import threading
+import os
 # import signal
 
 # Import Adafruit IO MQTT client.
@@ -15,9 +16,10 @@ from Adafruit_IO import MQTTClient
 import scrollphathd
 from scrollphathd.fonts import font5x7
 
-# Set to your Adafruit IO key & username below.
-ADAFRUIT_IO_KEY = '1168c7db061e42b29aa7f9e32af5ad42'
-ADAFRUIT_IO_USERNAME = 'LimeBlast'
+import settings
+ADAFRUIT_IO_KEY = os.environ.get("ADAFRUIT_IO_KEY")
+ADAFRUIT_IO_USERNAME = os.environ.get("ADAFRUIT_IO_USERNAME")
+
 
 scrollphathd.rotate(180)
 
