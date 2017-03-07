@@ -22,18 +22,15 @@ scrollphathd.rotate(180)
 
 
 def display_string(string):
-    length = len(string)
-    width = 17
-    buffer = (length * 6) + width
-
-    scrollphathd.write_string(string + "      ", x=width, y=0, font=font5x7, brightness=0.5)
+    string += '      '
+    buffer = scrollphathd.write_string(string, x=17, y=0, font=font5x7, brightness=0.5)
 
     for i in range(buffer):
         scrollphathd.show()
         scrollphathd.scroll(1)
         time.sleep(0.05)
 
-    scrollphathd.clear()
+    scrollphathd.scroll_to(0, 0)
     scrollphathd.show()
 
 
@@ -59,7 +56,6 @@ def message(client, feed_id, payload):
     # The feed_id parameter identifies the feed, and the payload parameter has
     # the new value.
     print('Feed {0} received new value: {1}'.format(feed_id, payload))
-
     display_string(payload)
 
 
@@ -82,10 +78,10 @@ client.connect()
 # doing things in your program.
 client.loop_background()
 
-# Now send new values every 40 seconds.
-print('Publishing a new message every 40 seconds (press Ctrl-C to quit)...')
+# Now send new values every 20 seconds.
+print('Publishing a new message every 20 seconds (press Ctrl-C to quit)...')
 while True:
     value = random.randint(0, 100)
     print('Publishing {0} to DemoFeed.'.format(value))
     client.publish('DemoFeed', value)
-    time.sleep(40)
+    time.sleep(20)
