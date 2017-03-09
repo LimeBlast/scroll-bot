@@ -5,7 +5,6 @@
 import random
 import sys
 import time
-import threading
 import os
 # import signal
 
@@ -17,9 +16,9 @@ import scrollphathd
 from scrollphathd.fonts import font5x7
 
 import settings
+
 ADAFRUIT_IO_KEY = os.environ.get("ADAFRUIT_IO_KEY")
 ADAFRUIT_IO_USERNAME = os.environ.get("ADAFRUIT_IO_USERNAME")
-
 
 scrollphathd.rotate(180)
 
@@ -32,11 +31,13 @@ def add_message(string):
 
 def display_feed():
     while True:
-        if len(messages) > 0:
+        try:
             print('There are {0} messages waiting for display'.format(len(messages)))
-            display_string(messages.pop(0))
-        else:
+            next_message = messages.pop(0)
+        except IndexError:
             time.sleep(1)
+            continue
+        display_string(next_message)
 
 
 def display_string(string):
@@ -97,4 +98,10 @@ client.connect()
 # doing things in your program.
 client.loop_background()
 
-threading.Thread(target=display_feed).start()
+
+def main():
+    display_feed()
+
+
+if __name__ == "__main__":
+    main()
