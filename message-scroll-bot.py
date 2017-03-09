@@ -2,6 +2,8 @@
 import sys
 import time
 import os
+import queue
+
 
 # Import Adafruit IO MQTT client.
 from Adafruit_IO import MQTTClient
@@ -17,18 +19,18 @@ ADAFRUIT_IO_USERNAME = os.environ.get("ADAFRUIT_IO_USERNAME")
 
 scrollphathd.rotate(180)
 
-messages = []
+messages = queue.Queue()
 
 
 def add_message(string):
-    messages.append(string)
+    messages.put(string)
 
 
 def display_feed():
     while True:
         try:
-            print('There are {0} messages waiting for display'.format(len(messages)))
-            next_message = messages.pop(0)
+            print('There are {0} messages waiting for display'.format(messages.qsize()))
+            next_message = messages.get()
         except IndexError:
             time.sleep(1)
             continue
