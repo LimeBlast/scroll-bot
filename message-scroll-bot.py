@@ -1,9 +1,9 @@
 # Import standard python modules.
 import sys
 import time
+import threading
 import os
 import queue
-
 
 # Import Adafruit IO MQTT client.
 from Adafruit_IO import MQTTClient
@@ -20,21 +20,11 @@ ADAFRUIT_IO_USERNAME = os.environ.get("ADAFRUIT_IO_USERNAME")
 scrollphathd.rotate(180)
 
 messages = queue.Queue()
+queue_processor_running = False
 
 
 def add_message(string):
     messages.put(string)
-
-
-def display_feed():
-    while True:
-        try:
-            print('There are {0} messages waiting for display'.format(messages.qsize()))
-            next_message = messages.get()
-        except IndexError:
-            time.sleep(1)
-            continue
-        display_string(next_message)
 
 
 def display_string(string):
@@ -51,6 +41,22 @@ def display_string(string):
     scrollphathd.show()
 
 
+def process_next_queue_item():
+    display_string(messages.get())
+
+
+def start_queue_processor():
+    queue_processor_running = True
+    print('Starting up queue')
+    while True:
+        if messages.qsize() == 0:
+            queue_processor_running = False
+            print('Shutting down queue')
+            break
+        process_next_queue_item()
+        time.sleep(1)
+
+
 def connected(client):
     print('Connected to Adafruit IO!  Listening for Message changes...')
     client.subscribe('Message')
@@ -64,6 +70,8 @@ def disconnected(client):
 def message(client, feed_id, payload):
     print('Feed {0} received new value: {1}'.format(feed_id, payload))
     add_message(payload)
+    if not queue_processor_running:
+        start_queue_processor()
 
 
 # Create an MQTT client instance.
@@ -77,13 +85,7 @@ client.on_message = message
 # Connect to the Adafruit IO server.
 client.connect()
 
-# Run a thread in the background so you can continue doing things in your program.
-client.loop_background()
-
-
-def main():
-    display_feed()
-
-
-if __name__ == "__main__":
-    main()
+# This will run a message loop forever, so your program
+# will not get past the loop_blocking call.  This is
+# good for simple programs which only listen to events.
+client.loop_blocking()
