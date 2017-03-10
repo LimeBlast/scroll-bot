@@ -8,7 +8,7 @@ import queue
 # Import Adafruit IO MQTT client.
 from Adafruit_IO import MQTTClient
 
-# Import scrollphathd
+# Import Scroll pHAT HD
 import scrollphathd
 from scrollphathd.fonts import font5x7
 
@@ -20,6 +20,7 @@ ADAFRUIT_IO_USERNAME = os.environ.get("ADAFRUIT_IO_USERNAME")
 scrollphathd.rotate(180)
 
 messages = queue.Queue()
+
 
 def add_message(string):
     messages.put(string)
@@ -49,10 +50,10 @@ def start_queue_processor():
     # line until there is something in the queue.
     while True:
         print("[Queue] waiting for message")
-        next_message = messages.get() # this blocks!
+        next_message = messages.get()  # this blocks!
         print("[Queue] got a message (there are %s messages still in the queue)" % (messages.qsize(),))
         display_string(next_message)
-        time.sleep(5) # and wait around a bit so you can read the message
+        time.sleep(5)  # and wait around a bit so you can read the message
 
 
 def connected(client):
@@ -60,33 +61,33 @@ def connected(client):
     client.subscribe('Message')
 
 
-def disconnected(client):
+def disconnected(_):
     print('Disconnected from Adafruit IO!')
     sys.exit(1)
 
 
-def message(client, feed_id, payload):
+def message(_, feed_id, payload):
     print('Feed {0} received new value: {1}'.format(feed_id, payload))
     messages.put(payload)
 
-# Start the queue processor in a background thread
-queuethread = threading.Thread(target=start_queue_processor)
-queuethread.setDaemon(True) # ensure that when the main loop exits, the bgthread exits too
-queuethread.start()
 
+# Start the queue processor in a background thread
+queue_thread = threading.Thread(target=start_queue_processor)
+queue_thread.setDaemon(True)  # ensure that when the main loop exits, the background thread exits too
+queue_thread.start()
 
 # Create an MQTT client instance.
-client = MQTTClient(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY)
+mqtt_client = MQTTClient(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY)
 
 # Setup the callback functions defined above.
-client.on_connect = connected
-client.on_disconnect = disconnected
-client.on_message = message
+mqtt_client.on_connect = connected
+mqtt_client.on_disconnect = disconnected
+mqtt_client.on_message = message
 
 # Connect to the Adafruit IO server.
-client.connect()
+mqtt_client.connect()
 
 # This will run a message loop forever, so your program
 # will not get past the loop_blocking call.  This is
 # good for simple programs which only listen to events.
-client.loop_blocking()
+mqtt_client.loop_blocking()
