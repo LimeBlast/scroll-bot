@@ -27,6 +27,7 @@ def add_message(string):
 
 
 def display_string(string):
+    print('[Display] Showing message "{0}"'.format(string))
     string += '      '
     buffer = scrollphathd.write_string(string, x=17, y=0, font=font5x7, brightness=0.5)
 
@@ -57,17 +58,17 @@ def start_queue_processor():
 
 
 def connected(client):
-    print('Connected to Adafruit IO!  Listening for Message changes...')
+    print('[MQTT] Connected to Adafruit IO!  Listening for Message changes...')
     client.subscribe('Message')
 
 
 def disconnected(_):
-    print('Disconnected from Adafruit IO!')
+    print('[MQTT] Disconnected from Adafruit IO!')
     sys.exit(1)
 
 
 def message(_, feed_id, payload):
-    print('Feed {0} received new value: {1}'.format(feed_id, payload))
+    print('[MQTT] Feed {0} received new value: "{1}"'.format(feed_id, payload))
     messages.put(payload)
 
 
