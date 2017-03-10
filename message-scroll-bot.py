@@ -20,8 +20,6 @@ ADAFRUIT_IO_USERNAME = os.environ.get("ADAFRUIT_IO_USERNAME")
 scrollphathd.rotate(180)
 
 messages = queue.Queue()
-queue_processor_running = False
-
 
 def add_message(string):
     messages.put(string)
@@ -41,20 +39,20 @@ def display_string(string):
     scrollphathd.show()
 
 
-def process_next_queue_item():
-    display_string(messages.get())
-
-
 def start_queue_processor():
-    queue_processor_running = True
-    print('Starting up queue')
+    # This is running in a background thread. So it's safe to block.
+    # Basically, it blocks until a message shows up in the queue,
+    # and then displays it, and then waits five seconds.
+    # So things can accumulate in the queue without a problem, and
+    # this will just process them when it gets to them; if there's
+    # nothing in the queue, this will block on the next_message
+    # line until there is something in the queue.
     while True:
-        if messages.qsize() == 0:
-            queue_processor_running = False
-            print('Shutting down queue')
-            break
-        process_next_queue_item()
-        time.sleep(1)
+        print("[Queue] waiting for message")
+        next_message = messages.get() # this blocks!
+        print("[Queue] got a message (there are %s messages still in the queue)" % (messages.qsize(),))
+        display_string(next_message)
+        time.sleep(5) # and wait around a bit so you can read the message
 
 
 def connected(client):
@@ -69,9 +67,12 @@ def disconnected(client):
 
 def message(client, feed_id, payload):
     print('Feed {0} received new value: {1}'.format(feed_id, payload))
-    add_message(payload)
-    if not queue_processor_running:
-        start_queue_processor()
+    messages.put(payload)
+
+# Start the queue processor in a background thread
+queuethread = threading.Thread(target=start_queue_processor)
+queuethread.setDaemon(True) # ensure that when the main loop exits, the bgthread exits too
+queuethread.start()
 
 
 # Create an MQTT client instance.
