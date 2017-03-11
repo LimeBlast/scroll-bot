@@ -50,7 +50,4 @@ mqttclient.subscribe(MQTT_ROOT_TOPIC + 'rgb/red')
 mqttclient.subscribe(MQTT_ROOT_TOPIC + 'rgb/green')
 mqttclient.subscribe(MQTT_ROOT_TOPIC + 'rgb/blue')
 
-# Publish a message
-mqttclient.publish(MQTT_ROOT_TOPIC, "Hello World Message!")
-
 mqttclient.loop_forever(timeout=1.0, max_packets=1, retry_first_connection=False)
