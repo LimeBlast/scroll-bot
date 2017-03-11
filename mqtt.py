@@ -46,13 +46,11 @@ mqttclient.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
 mqttclient.connect(MQTT_HOST, int(MQTT_PORT))
 
 # Start subscription
-mqttclient.subscribe(MQTT_ROOT_TOPIC)
+mqttclient.subscribe(MQTT_ROOT_TOPIC + 'rgb/red')
+mqttclient.subscribe(MQTT_ROOT_TOPIC + 'rgb/green')
+mqttclient.subscribe(MQTT_ROOT_TOPIC + 'rgb/blue')
 
 # Publish a message
 mqttclient.publish(MQTT_ROOT_TOPIC, "Hello World Message!")
 
-# Loop; exit on error
-rc = 0
-while rc == 0:
-    rc = mqttclient.loop()
-print("rc: " + str(rc))
+mqttclient.loop_forever(timeout=1.0, max_packets=1, retry_first_connection=False)
