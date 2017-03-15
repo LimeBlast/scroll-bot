@@ -2,7 +2,6 @@
 import sys
 import time
 import threading
-import os
 import queue
 
 # Import Adafruit IO MQTT client.
@@ -13,9 +12,6 @@ import scrollphathd
 from scrollphathd.fonts import font5x7
 
 import settings
-
-ADAFRUIT_IO_KEY = os.environ.get("ADAFRUIT_IO_KEY")
-ADAFRUIT_IO_USERNAME = os.environ.get("ADAFRUIT_IO_USERNAME")
 
 scrollphathd.rotate(180)
 
@@ -78,7 +74,7 @@ queue_thread.setDaemon(True)  # ensure that when the main loop exits, the backgr
 queue_thread.start()
 
 # Create an MQTT client instance.
-mqtt_client = MQTTClient(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY)
+mqtt_client = MQTTClient(settings.ADAFRUIT_IO_USERNAME, settings.ADAFRUIT_IO_KEY)
 
 # Setup the callback functions defined above.
 mqtt_client.on_connect = connected
@@ -91,4 +87,5 @@ mqtt_client.connect()
 # This will run a message loop forever, so your program
 # will not get past the loop_blocking call.  This is
 # good for simple programs which only listen to events.
-mqtt_client.loop_blocking()
+while True:
+    mqtt_client.loop_blocking()
