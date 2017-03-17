@@ -7,34 +7,14 @@ import queue
 # Import Adafruit IO MQTT client.
 from Adafruit_IO import MQTTClient
 
-# Import Scroll pHAT HD
-import scrollphathd
-from scrollphathd.fonts import font5x7
-
 import settings
-
-scrollphathd.rotate(180)
+import they_see_me_scrollin
 
 messages = queue.Queue()
 
 
 def add_message(string):
     messages.put(string)
-
-
-def display_string(string):
-    print('[Display] Showing message "{0}"'.format(string))
-    string += '      '
-    buffer = scrollphathd.write_string(string, x=17, y=0, font=font5x7, brightness=0.5)
-
-    for i in range(buffer):
-        scrollphathd.show()
-        scrollphathd.scroll(1)
-        time.sleep(0.02)
-
-    scrollphathd.scroll_to(0, 0)
-    scrollphathd.clear()
-    scrollphathd.show()
 
 
 def start_queue_processor():
@@ -49,7 +29,7 @@ def start_queue_processor():
         print("[Queue] waiting for message")
         next_message = messages.get()  # this blocks!
         print("[Queue] got a message (there are %s messages still in the queue)" % (messages.qsize(),))
-        display_string(next_message)
+        they_see_me_scrollin.display_string(next_message)
         time.sleep(5)  # and wait around a bit so you can read the message
 
 
